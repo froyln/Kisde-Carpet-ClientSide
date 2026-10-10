@@ -26,7 +26,7 @@ public abstract class SchematicCreationUtilsMixin {
         SchematicSaveSettings settings = new SchematicSaveSettings();
         settings.saveEntities.setBooleanValue(false);
         settings.saveBlockTicks.setBooleanValue(false);
-        Minecraft.getMinecraft().player.sendMessage(new TextComponentString("[Bullet Carpet] Capturing server blocks and block entities; entities and scheduled ticks are excluded."));
+        Minecraft.getMinecraft().player.sendMessage(new TextComponentString("[Kisde-Carpet] Capturing server blocks and block entities; entities and scheduled ticks are excluded."));
         SchematicSavePacketHandler.INSTANCE.requestSchematicSaveAllAtOnce(selection, settings,
                 schematic -> onInMemorySchematicCreated(schematic, name));
         cir.setReturnValue(true);

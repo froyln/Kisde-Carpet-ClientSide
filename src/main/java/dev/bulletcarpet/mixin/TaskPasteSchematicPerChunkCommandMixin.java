@@ -84,7 +84,7 @@ public abstract class TaskPasteSchematicPerChunkCommandMixin implements Assisted
                 this.sentCommandsThisTick++;
                 this.sentCommandsTotal++;
             } catch (Exception e) {
-                mc.player.sendMessage(new net.minecraft.util.text.TextComponentString("[Bullet Carpet] Assisted paste stopped: " + e.getMessage()));
+                mc.player.sendMessage(new net.minecraft.util.text.TextComponentString("[Kisde-Carpet] Assisted paste stopped: " + e.getMessage()));
                 ((TaskPasteSchematicPerChunkCommand) (Object) this).stop();
                 cir.setReturnValue(true);
                 return;
@@ -103,7 +103,7 @@ public abstract class TaskPasteSchematicPerChunkCommandMixin implements Assisted
         if (Boolean.TRUE.equals(cir.getReturnValue()) && this.bulletcarpet$operation != 0 && !this.bulletcarpet$operationClosed) {
             if (this.bulletcarpet$sequence == 0) {
                 Minecraft mc = Minecraft.getMinecraft();
-                if (mc.player != null) mc.player.sendMessage(new net.minecraft.util.text.TextComponentString("[Bullet Carpet] No blocks matched the paste replacement and layer settings (0 updates)."));
+                if (mc.player != null) mc.player.sendMessage(new net.minecraft.util.text.TextComponentString("[Kisde-Carpet] No blocks matched the paste replacement and layer settings (0 updates)."));
             } else {
                 this.sendControl("Complete");
             }

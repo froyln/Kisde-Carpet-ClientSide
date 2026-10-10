@@ -68,7 +68,7 @@ public final class ServerInventoryPreview {
                     int slot = (Integer) args[0];
                     return slot < 0 || slot >= stacks.length ? ItemStack.EMPTY : stacks[slot];
                 }
-                if ("toString".equals(method.getName())) return "Bullet Carpet server inventory";
+                if ("toString".equals(method.getName())) return "Kisde-Carpet server inventory";
                 return null;
             };
             return Proxy.newProxyInstance(view.getClassLoader(), new Class<?>[] {view}, handler);

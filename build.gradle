@@ -14,7 +14,7 @@ apply plugin: 'net.minecraftforge.gradle.liteloader'
 apply plugin: 'org.spongepowered.mixin'
 
 group = 'dev.bulletcarpet'
-version = '0.1.1'
+version = '0.2.0'
 sourceCompatibility = targetCompatibility = '1.8'
 
 minecraft {
@@ -57,8 +57,8 @@ mixin {
 
 litemod {
     json {
-        name = 'bulletcarpet'
-        displayName = 'Bullet Carpet'
+        name = 'kisdecarpet'
+        displayName = 'Kisde-Carpet'
         mcversion = '1.12.2'
         dependsOn = ['malilib', 'litematica']
         mixinConfigs += 'mixins.bulletcarpet.json'
@@ -66,6 +66,6 @@ litemod {
 }
 
 jar {
-    archiveName = 'Bullet-Carpet.litemod'
+    archiveName = 'Kisde-Carpet.litemod'
     from litemod.outputs
 }

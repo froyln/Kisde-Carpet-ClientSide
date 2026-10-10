@@ -41,7 +41,7 @@ public abstract class SaveSchematicFromAreaScreenMixin {
     private void bulletcarpet$configureServerCapture(AreaSelection selection, CallbackInfo ci) {
         if (!LiteModBulletCarpet.serverHasChannel("bulletcarpet:paste")) return;
         this.saveSide.setValueChangeCallback((current, previous) -> this.reAddActiveWidgets());
-        this.saveSideButton.translateAndAddHoverString("Bullet Carpet: Auto captures server blocks and block entities, including inventories and sign text. Entities and scheduled ticks are unsupported.");
+        this.saveSideButton.translateAndAddHoverString("Kisde-Carpet: Auto captures server blocks and block entities, including inventories and sign text. Entities and scheduled ticks are unsupported.");
         this.bulletcarpet$updateCaptureOptions();
     }
 

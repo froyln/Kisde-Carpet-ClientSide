@@ -15,12 +15,12 @@ import net.minecraft.client.Minecraft;
 public class LiteModBulletCarpet implements LiteMod, GameLoopListener, PluginChannelListener {
     @Override
     public String getName() {
-        return "Bullet Carpet";
+        return "Kisde-Carpet";
     }
 
     @Override
     public String getVersion() {
-        return "0.1.1";
+        return "0.2.0";
     }
 
     @Override

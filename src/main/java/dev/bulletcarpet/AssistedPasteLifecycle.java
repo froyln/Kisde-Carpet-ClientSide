@@ -41,7 +41,7 @@ public final class AssistedPasteLifecycle {
                     rejectedOperation = ackOperation;
                 }
                 if (Minecraft.getMinecraft().player != null) {
-                    Minecraft.getMinecraft().player.sendMessage(new TextComponentString("[Bullet Carpet] " + message + " (" + applied + " updates)."));
+                    Minecraft.getMinecraft().player.sendMessage(new TextComponentString("[Kisde-Carpet] " + message + " (" + applied + " updates)."));
                 }
                 if ("Rejected".equals(status) && operation == ackOperation && task != null) {
                     ((AssistedPasteTask) task).bulletcarpet$markOperationClosed();

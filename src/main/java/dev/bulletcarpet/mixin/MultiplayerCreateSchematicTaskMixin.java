@@ -30,7 +30,7 @@ public abstract class MultiplayerCreateSchematicTaskMixin {
         if (this.bulletcarpet$startedAt == 0L || System.nanoTime() - this.bulletcarpet$startedAt < bulletcarpet$timeoutNanos) return;
         ((MultiplayerCreateSchematicTask) (Object) this).stop();
         Minecraft minecraft = Minecraft.getMinecraft();
-        if (minecraft.player != null) minecraft.player.sendMessage(new TextComponentString("[Bullet Carpet] Server schematic capture timed out"));
+        if (minecraft.player != null) minecraft.player.sendMessage(new TextComponentString("[Kisde-Carpet] Server schematic capture timed out"));
         cir.setReturnValue(true);
     }
 }

@@ -84,7 +84,7 @@ public abstract class SchematicSavePacketHandlerMixin {
         removeSaveTask(id);
         if (task != null) task.stop();
         if (Minecraft.getMinecraft().player != null) {
-            Minecraft.getMinecraft().player.sendMessage(new TextComponentString("[Bullet Carpet] " + message));
+            Minecraft.getMinecraft().player.sendMessage(new TextComponentString("[Kisde-Carpet] " + message));
         }
     }
 
