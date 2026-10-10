@@ -1,0 +1,71 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url = 'https://maven.minecraftforge.net' }
+        maven { url = 'https://repo.spongepowered.org/maven' }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.liteloader'
+apply plugin: 'org.spongepowered.mixin'
+
+group = 'dev.bulletcarpet'
+version = '0.1.1'
+sourceCompatibility = targetCompatibility = '1.8'
+
+minecraft {
+    version = '1.12.2'
+    mappings = 'stable_39'
+}
+
+def instanceModsDir = file(project.findProperty('instanceModsDir') ?: "${System.getProperty('user.home')}/.local/share/PrismLauncher/instances/1.12.2-ai-masabehavior/minecraft/mods/1.12.2")
+def stageForDeobfuscation = { String artifact, String version ->
+    File inputFile = new File(instanceModsDir, "${artifact}-liteloader-1.12.2-${version}.litemod")
+    if (!inputFile.isFile()) {
+        throw new GradleException("Expected ${artifact} ${version} in ${instanceModsDir}; set -PinstanceModsDir if needed")
+    }
+    File path = file("$buildDir/local-maven/dev/masa/$artifact/$version")
+    path.mkdirs()
+    copy {
+        from inputFile
+        into path
+        rename { "${artifact}-${version}.jar" }
+    }
+    new File(path, "${artifact}-${version}.pom").text = """<project><modelVersion>4.0.0</modelVersion><groupId>dev.masa</groupId><artifactId>${artifact}</artifactId><version>${version}</version></project>"""
+}
+stageForDeobfuscation('malilib', '0.54.0')
+stageForDeobfuscation('litematica', '0.31.4')
+
+repositories {
+    maven { url uri("$buildDir/local-maven") }
+}
+
+dependencies {
+    deobfCompile 'dev.masa:malilib:0.54.0'
+    deobfCompile 'dev.masa:litematica:0.31.4'
+}
+
+sourceSets.main.refMap = 'mixins.bulletcarpet.refmap.json'
+
+mixin {
+    defaultObfuscationEnv notch
+}
+
+litemod {
+    json {
+        name = 'bulletcarpet'
+        displayName = 'Bullet Carpet'
+        mcversion = '1.12.2'
+        dependsOn = ['malilib', 'litematica']
+        mixinConfigs += 'mixins.bulletcarpet.json'
+    }
+}
+
+jar {
+    archiveName = 'Bullet-Carpet.litemod'
+    from litemod.outputs
+}

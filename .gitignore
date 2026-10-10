@@ -1,0 +1,25 @@
+
+# Local Claude Code preferences
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Common local secrets; merge with the project's existing ignore rules
+.env
+.env.*
+!.env.example
+secrets/
+
+# Local AI workflow and task handoffs
+/docs/local/
+/AI_WORKFLOW.md
+/PLAN.md
+
+# Gradle outputs
+/.gradle/
+/build/
+
+/AGENTS.md
+/CLAUDE.md
+/.claude/
+/scripts/check-agent-setup.py
+/run/
