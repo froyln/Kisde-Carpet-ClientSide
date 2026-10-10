@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "minVersion": "0.7.5",
+  "compatibilityLevel": "JAVA_8",
+  "package": "dev.bulletcarpet.mixin",
+  "refmap": "mixins.bulletcarpet.refmap.json",
+  "mixins": [
+    "SchematicSavePacketHandlerMixin",
+    "SaveSchematicFromAreaScreenMixin",
+    "SchematicCreationUtilsMixin",
+    "MultiplayerCreateSchematicTaskAccessor",
+    "MultiplayerCreateSchematicTaskMixin",
+    "NBTTagLongArrayAccessor",
+    "TaskPasteSchematicPerChunkCommandMixin",
+    "TaskPasteSchematicPerChunkBaseAccessor",
+    "WorldAccessor",
+    "InventoryRenderUtilsMixin",
+    "CarpetStructureRequestMixin",
+    "CarpetClientPacketFanoutMixin",
+    "CarpetLiteLoaderPayloadFanoutMixin",
+    "ServerInventoryPayloadMixin"
+  ]
+}
