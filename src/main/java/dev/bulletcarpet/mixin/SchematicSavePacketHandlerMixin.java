@@ -10,7 +10,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.nbt.NBTTagLongArray;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3i;
@@ -99,54 +98,7 @@ public abstract class SchematicSavePacketHandlerMixin {
             NBTTagCompound region = regions.getCompoundTag(name);
             ISchematicRegion selected = schematic.getSchematicRegion(name);
             validateRegion(name, region, selected);
-            normalizeRegion(region, expectedSize(selected));
         }
-    }
-
-    private static void normalizeRegion(NBTTagCompound region, Vec3i expectedSize) {
-        boolean reverseX = expectedSize.getX() < 0, reverseY = expectedSize.getY() < 0, reverseZ = expectedSize.getZ() < 0;
-        if (!reverseX && !reverseY && !reverseZ) return;
-        NBTTagCompound blocks = region.getCompoundTag("Blocks");
-        int sizeX = blocks.getInteger("sizeX"), sizeY = blocks.getInteger("sizeY"), sizeZ = blocks.getInteger("sizeZ");
-        int bits = Math.max(2, 32 - Integer.numberOfLeadingZeros(blocks.getTagList("BlockStatePalette", 10).tagCount() - 1));
-        long[] packed = ((NBTTagLongArrayAccessor) blocks.getTag("BlockStates")).bulletcarpet$getData();
-        int volume = Math.multiplyExact(Math.multiplyExact(sizeX, sizeY), sizeZ);
-        int[] states = new int[volume];
-        for (int i = 0; i < volume; i++) states[i] = unpackState(packed, i, bits);
-        int[] reversed = new int[volume];
-        for (int y = 0; y < sizeY; y++) for (int z = 0; z < sizeZ; z++) for (int x = 0; x < sizeX; x++) {
-            int targetX = reverseX ? sizeX - 1 - x : x;
-            int targetY = reverseY ? sizeY - 1 - y : y;
-            int targetZ = reverseZ ? sizeZ - 1 - z : z;
-            reversed[(targetY * sizeZ + targetZ) * sizeX + targetX] = states[(y * sizeZ + z) * sizeX + x];
-        }
-        blocks.setTag("BlockStates", new NBTTagLongArray(packStates(reversed, bits)));
-        NBTTagList tiles = region.getTagList("BlockEntities", 10);
-        for (int i = 0; i < tiles.tagCount(); i++) {
-            NBTTagCompound tile = tiles.getCompoundTagAt(i);
-            if (reverseX) tile.setInteger("x", sizeX - 1 - tile.getInteger("x"));
-            if (reverseY) tile.setInteger("y", sizeY - 1 - tile.getInteger("y"));
-            if (reverseZ) tile.setInteger("z", sizeZ - 1 - tile.getInteger("z"));
-        }
-    }
-
-    private static int unpackState(long[] packed, int index, int bits) {
-        long bitIndex = (long) index * bits;
-        int word = (int) (bitIndex >>> 6), offset = (int) (bitIndex & 63);
-        long state = packed[word] >>> offset;
-        if (offset + bits > 64) state |= packed[word + 1] << (64 - offset);
-        return (int) (state & ((1L << bits) - 1));
-    }
-
-    private static long[] packStates(int[] states, int bits) {
-        long[] packed = new long[(int) (((long) states.length * bits + 63) / 64)];
-        for (int i = 0; i < states.length; i++) {
-            long bitIndex = (long) i * bits;
-            int word = (int) (bitIndex >>> 6), offset = (int) (bitIndex & 63);
-            packed[word] |= (long) states[i] << offset;
-            if (offset + bits > 64) packed[word + 1] |= (long) states[i] >>> (64 - offset);
-        }
-        return packed;
     }
 
     private static void validateRegion(String name, NBTTagCompound region, ISchematicRegion expected) {
