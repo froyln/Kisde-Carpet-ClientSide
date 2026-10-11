@@ -2,7 +2,7 @@
 
 # Kisde-Carpet
 
-**A Minecraft 1.12.2 LiteLoader companion for server schematic capture, NBT paste, live inventory previews and MiniHUD structure boxes.**
+**A Minecraft 1.12.2 Carpet client companion with schematic, inventory and display tools.**
 
 [![Minecraft 1.12.2](https://img.shields.io/badge/Minecraft-1.12.2-green)](https://github.com/froyln/Kisde-Carpet)
 [![Java 8](https://img.shields.io/badge/Java-8-blue)](https://github.com/froyln/Kisde-Carpet)
