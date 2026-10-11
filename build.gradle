@@ -69,3 +69,9 @@ jar {
     archiveName = 'Kisde-Carpet.litemod'
     from litemod.outputs
 }
+
+task scoreboardOrderCheck(type: JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'dev.bulletcarpet.SidebarScoreOrderCheck'
+}

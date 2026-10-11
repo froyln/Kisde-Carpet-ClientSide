@@ -28,6 +28,8 @@ Tweakeroo and Litematica world inventory overlays refresh server contents while 
 
 The rename retains existing packet channels and internal compatibility identifiers. Without a paired server, ordinary Litematica client behavior remains available; vanilla paste does not preserve inventory NBT.
 
+The companion keeps the `Total` entry above player rows in `/sb` statistics sidebars, including tied scores and temporary updates. Names and score values are preserved; this display fix requires the companion on each viewing client.
+
 ## Documentation
 
 See the server's [integration guide](https://github.com/froyln/Kisde-Carpet/blob/staging/docs/usage/server-integrations.rst) for permissions, limits, no-update behavior and supported data. This companion is a separate client project; never install it on the server.

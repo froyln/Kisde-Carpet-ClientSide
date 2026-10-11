@@ -18,6 +18,7 @@
     "CarpetStructureRequestMixin",
     "CarpetClientPacketFanoutMixin",
     "CarpetLiteLoaderPayloadFanoutMixin",
-    "ServerInventoryPayloadMixin"
+    "ServerInventoryPayloadMixin",
+    "GuiIngameScoreboardMixin"
   ]
 }
