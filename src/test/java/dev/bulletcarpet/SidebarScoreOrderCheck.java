@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.scoreboard.IScoreCriteria;
 import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
+import net.minecraft.scoreboard.ScorePlayerTeam;
 import net.minecraft.scoreboard.Scoreboard;
 
 public final class SidebarScoreOrderCheck {
@@ -31,6 +32,12 @@ public final class SidebarScoreOrderCheck {
         }
         Scoreboard board = new Scoreboard();
         ScoreObjective objective = board.addScoreObjective("st.jump", IScoreCriteria.DUMMY);
+        check(SidebarScoreOrder.formatName(objective, null, "Total").equals("\u00a7lTotal\u00a7r"), "Total name is not bold");
+        check(SidebarScoreOrder.formatName(objective, null, "Alice").equals("Alice"), "Player name formatting changed");
+        ScorePlayerTeam team = board.createTeam("labels");
+        team.setPrefix("\u00a7a[");
+        team.setSuffix("]");
+        check(SidebarScoreOrder.formatName(objective, team, "Total").equals("\u00a7a[\u00a7lTotal\u00a7r]"), "Team decoration lost");
         for (int i = 0; i < 20; i++) board.getOrCreateScore("Player" + i, objective).setScorePoints(i);
         Score total = board.getOrCreateScore("Total", objective);
         List<Score> original = new ArrayList<>(board.getSortedScores(objective));
@@ -39,10 +46,11 @@ public final class SidebarScoreOrderCheck {
         original.remove(total); ordered.remove(total);
         check(original.equals(ordered), "Player ordering changed");
         ScoreObjective ordinary = board.addScoreObjective("ordinary", IScoreCriteria.DUMMY);
+        check(SidebarScoreOrder.formatName(ordinary, null, "Total").equals("Total"), "Ordinary Total formatting changed");
         board.getOrCreateScore("Total", ordinary).setScorePoints(0);
         board.getOrCreateScore("Alice", ordinary).setScorePoints(10);
         java.util.Collection<Score> ordinaryScores = board.getSortedScores(ordinary);
         check(SidebarScoreOrder.totalOnTop(ordinary, ordinaryScores) == ordinaryScores, "Ordinary scoreboard changed");
-        System.out.println("Sidebar Total priority, cutoff and unchanged score checks passed");
+        System.out.println("Sidebar Total priority, bold name, cutoff and unchanged score checks passed");
     }
 }
