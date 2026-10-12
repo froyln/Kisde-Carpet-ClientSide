@@ -77,11 +77,12 @@ public class LiteModBulletCarpet implements LiteMod, GameLoopListener, PluginCha
             pasteInventories = false;
         }
         ServerInventoryPreview.instance().onRunGameLoop(minecraft);
+        SharedSchematics.INSTANCE.tick(minecraft);
     }
 
     @Override
     public List<String> getChannels() {
-        return Arrays.asList("bc:paste_ack", "pca:update_be", "bc:inv_ack", SCHEMATIC_RULES);
+        return Arrays.asList("bc:paste_ack", "pca:update_be", "bc:inv_ack", SCHEMATIC_RULES, SharedSchematics.CHANNEL);
     }
 
     @Override

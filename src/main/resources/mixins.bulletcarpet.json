@@ -19,6 +19,7 @@
     "CarpetClientPacketFanoutMixin",
     "CarpetLiteLoaderPayloadFanoutMixin",
     "ServerInventoryPayloadMixin",
-    "GuiIngameScoreboardMixin"
+    "GuiIngameScoreboardMixin",
+    "SharedSchematicsMenuMixin"
   ]
 }

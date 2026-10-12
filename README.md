@@ -2,7 +2,7 @@
 
 # Kisde-Carpet
 
-**A Minecraft 1.12.2 Carpet client companion with schematic, inventory and display tools.**
+**A Minecraft 1.12.2 Carpet client companion for schematic sharing, inventory tools and displays.**
 
 [![Minecraft 1.12.2](https://img.shields.io/badge/Minecraft-1.12.2-green)](https://github.com/froyln/Kisde-Carpet)
 [![Java 8](https://img.shields.io/badge/Java-8-blue)](https://github.com/froyln/Kisde-Carpet)
@@ -21,6 +21,12 @@
 An offline build requires the legacy Gradle/ForgeGradle dependencies to be cached already. A first build can use `./gradlew build` to resolve them. `setupDecompWorkspace` is not required.
 
 ## Usage
+
+When connected to a Kisde-Carpet server with `schematicShare` enabled, open
+Litematica's main menu and choose **Shared schematics** to browse, load, upload,
+update or remove server shares. All players can upload; authors and operators
+can manage their shares. Loading a shared placement adds a local schematic
+overlay and does not place blocks. See the server's [shared schematics guide](https://github.com/froyln/Kisde-Carpet/blob/staging/docs/usage/shared-schematics.rst).
 
 Litematica Auto/server save captures server blocks and block entities, including inventories and sign text. Entities and scheduled ticks are not captured. Paste detects the server automatically and follows Litematica's command rate, layers, transforms and replacement settings. Use replacement `all` to restore NBT in existing blocks. Capture and paste require OP permission and creative mode. The server rules `schematicSave` and `schematicPaste` control container contents only: when off, blocks and other block-entity metadata remain available. The save screen disables **Save inventories** while `schematicSave` is off. With inventory paste off, new containers are empty and existing same-block container contents are preserved.
 
