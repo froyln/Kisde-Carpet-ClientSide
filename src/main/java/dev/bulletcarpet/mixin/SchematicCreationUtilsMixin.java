@@ -24,6 +24,7 @@ public abstract class SchematicCreationUtilsMixin {
     private static void bulletcarpet$captureServerInMemory(String name, AreaSelection selection, CallbackInfoReturnable<Boolean> cir) {
         if (!LiteModBulletCarpet.serverHasChannel("bulletcarpet:paste")) return;
         SchematicSaveSettings settings = new SchematicSaveSettings();
+        settings.saveBlockEntities.setBooleanValue(LiteModBulletCarpet.canSaveInventories());
         settings.saveEntities.setBooleanValue(false);
         settings.saveBlockTicks.setBooleanValue(false);
         Minecraft.getMinecraft().player.sendMessage(new TextComponentString("[Kisde-Carpet] Capturing server blocks and block entities; entities and scheduled ticks are excluded."));

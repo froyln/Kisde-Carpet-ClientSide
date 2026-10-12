@@ -149,7 +149,15 @@ public abstract class TaskPasteSchematicPerChunkCommandMixin implements Assisted
         request.setInteger("Dimension", player.dimension);
         request.setTag("BlockState", writeState(state));
         TileEntity tile = SchematicWorldAccess.getTileEntity(world, pos);
-        if (tile != null) request.setTag("BlockEntity", tile.writeToNBT(new NBTTagCompound()));
+        if (tile != null) {
+            NBTTagCompound tag = tile.writeToNBT(new NBTTagCompound());
+            if (!LiteModBulletCarpet.canPasteInventories()) {
+                tag.removeTag("Items");
+                tag.removeTag("LootTable");
+                tag.removeTag("LootTableSeed");
+            }
+            request.setTag("BlockEntity", tag);
+        }
         PacketBuffer data = new PacketBuffer(Unpooled.buffer());
         try {
             data.writeCompoundTag(request);

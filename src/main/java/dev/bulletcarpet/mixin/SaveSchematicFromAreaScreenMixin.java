@@ -41,7 +41,7 @@ public abstract class SaveSchematicFromAreaScreenMixin {
     private void bulletcarpet$configureServerCapture(AreaSelection selection, CallbackInfo ci) {
         if (!LiteModBulletCarpet.serverHasChannel("bulletcarpet:paste")) return;
         this.saveSide.setValueChangeCallback((current, previous) -> this.reAddActiveWidgets());
-        this.saveSideButton.translateAndAddHoverString("Kisde-Carpet: Auto captures server blocks and block entities, including inventories and sign text. Entities and scheduled ticks are unsupported.");
+        this.saveSideButton.translateAndAddHoverString("Kisde-Carpet: Auto captures server blocks and block entities, with sign text; inventory contents depend on the server rule. Entities and scheduled ticks are unsupported.");
         this.bulletcarpet$updateCaptureOptions();
     }
 
@@ -53,9 +53,11 @@ public abstract class SaveSchematicFromAreaScreenMixin {
     @Unique
     private void bulletcarpet$updateCaptureOptions() {
         boolean server = this.saveSide.getValue() != SaveSide.CLIENT;
+        boolean inventoryRules = LiteModBulletCarpet.serverHasChannel(LiteModBulletCarpet.SCHEMATIC_RULES);
         if (server) {
             this.settings.saveBlocks.setBooleanValue(true);
-            this.settings.saveBlockEntities.setBooleanValue(true);
+            if (!inventoryRules) this.settings.saveBlockEntities.setBooleanValue(true);
+            else if (!LiteModBulletCarpet.canSaveInventories()) this.settings.saveBlockEntities.setBooleanValue(false);
             this.settings.saveEntities.setBooleanValue(false);
             this.settings.saveBlockTicks.setBooleanValue(false);
             this.settings.exposedBlocksOnly.setBooleanValue(false);
@@ -63,11 +65,20 @@ public abstract class SaveSchematicFromAreaScreenMixin {
             this.settings.saveFromSchematicWorld.setBooleanValue(false);
             this.customSettingsEnabled.setBooleanValue(true);
         }
+        this.saveBlockEntitiesWidget.getLabelWidget().setLabelText(server && inventoryRules ? "Save inventories" : "litematica.button.schematic_save.save_block_entities");
+        this.saveBlockEntitiesWidget.getButton().setEnabled(!server || (inventoryRules && LiteModBulletCarpet.canSaveInventories()));
         this.customSettingsButton.setEnabled(!server);
-        for (BooleanEditWidget widget : new BooleanEditWidget[] {this.saveBlocksWidget, this.saveBlockEntitiesWidget,
+        for (BooleanEditWidget widget : new BooleanEditWidget[] {this.saveBlocksWidget,
                 this.saveBlockTicksWidget, this.saveEntitiesWidget, this.exposedBlocksOnlyWidget,
                 this.fromNormalWorldWidget, this.fromSchematicWorldWidget}) {
             widget.getButton().setEnabled(!server);
+        }
+    }
+
+    @Inject(method = "saveSchematicOnServer", at = @At("HEAD"), remap = false)
+    private void bulletcarpet$applyInventoryRule(SchematicSaveSettings settings, Path path, boolean overwrite, CallbackInfo ci) {
+        if (LiteModBulletCarpet.serverHasChannel("bulletcarpet:paste") && !LiteModBulletCarpet.canSaveInventories()) {
+            settings.saveBlockEntities.setBooleanValue(false);
         }
     }
 
