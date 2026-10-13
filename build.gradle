@@ -75,3 +75,11 @@ task scoreboardOrderCheck(type: JavaExec) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'dev.bulletcarpet.SidebarScoreOrderCheck'
 }
+
+task sharedSchematicValidationCheck(type: JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'dev.bulletcarpet.SharedSchematicValidationCheck'
+    workingDir = file("$buildDir/checks/shared-schematic")
+    doFirst { workingDir.mkdirs() }
+}

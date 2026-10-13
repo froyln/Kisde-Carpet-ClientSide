@@ -165,16 +165,8 @@ public final class SharedSchematics {
         } finally { Files.deleteIfExists(complete.path); }
     }
     private void loadPlacement(NBTTagCompound entry, Path file) throws Exception {
-        try (DataInputStream input = new DataInputStream(new GZIPInputStream(Files.newInputStream(file)))) {
-            NBTTagCompound nbt = CompressedStreamTools.read(input, new NBTSizeTracker(64L * 1024 * 1024));
-            if (nbt.getInteger("Version") < 1 || nbt.getInteger("Version") > 4 || nbt.getCompoundTag("Regions").getSize() > 32) throw new IOException("Invalid shared schematic format");
-            for (String name : nbt.getCompoundTag("Regions").getKeySet()) {
-                NBTTagCompound size = nbt.getCompoundTag("Regions").getCompoundTag(name).getCompoundTag("Size");
-                long x = Math.abs((long) size.getInteger("x")), y = Math.abs((long) size.getInteger("y")), z = Math.abs((long) size.getInteger("z"));
-                if (x == 0 || y == 0 || z == 0 || x > 4096 || y > 256 || z > 4096 || x * y * z > 16 * 1024 * 1024) throw new IOException("Shared region dimensions too large");
-            }
-        }
-        JsonObject json = new JsonParser().parse(entry.getString("Placement")).getAsJsonObject();
+        SharedSchematicValidation.validate(file, entry.getString("Placement"));
+        JsonObject json = new JsonParser().parse(SharedSchematicValidation.placement(entry.getString("Placement"))).getAsJsonObject();
         json.addProperty("schematic", file.toAbsolutePath().toString()); json.addProperty("name", entry.getString("Name")); json.addProperty("enabled", true); json.addProperty("locked", true);
         SchematicPlacementUnloaded settings = SchematicPlacementUnloaded.fromJson(json);
         if (settings == null) throw new IOException("Invalid shared placement settings");
@@ -186,22 +178,8 @@ public final class SharedSchematics {
     private static void validateEntry(NBTTagCompound entry) throws IOException {
         try { UUID.fromString(entry.getString("Id")); UUID.fromString(entry.getString("Owner")); }
         catch (IllegalArgumentException e) { throw new IOException("Invalid shared schematic identity", e); }
-        boundedJson(entry.getString("Placement"));
+        SharedSchematicValidation.placement(entry.getString("Placement"));
         if (!entry.getString("Hash").matches("[0-9a-f]{64}") || entry.getInteger("Bytes") <= 0 || entry.getInteger("Bytes") > MAX_FILE || entry.getString("Placement").length() > 16384 || entry.getString("Name").length() > 96) throw new IOException("Invalid shared schematic metadata");
-    }
-    private static void boundedJson(String text) {
-        int depth = 0; boolean quoted = false, escape = false;
-        for (int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
-            if (quoted) {
-                if (escape) escape = false;
-                else if (c == '\\') escape = true;
-                else if (c == '"') quoted = false;
-            } else if (c == '"') quoted = true;
-            else if (c == '{' || c == '[') { if (++depth > 16) throw new IllegalArgumentException("Placement JSON is too deeply nested"); }
-            else if (c == '}' || c == ']') { if (--depth < 0) throw new IllegalArgumentException("Invalid placement JSON"); }
-        }
-        if (depth != 0 || quoted) throw new IllegalArgumentException("Invalid placement JSON");
     }
     public void cancel() { if (busy() && connection != null) send(message("Cancel")); cancelLocal(); }
     private void cancelLocal() {

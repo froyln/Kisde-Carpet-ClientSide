@@ -11,6 +11,7 @@
     "MultiplayerCreateSchematicTaskAccessor",
     "MultiplayerCreateSchematicTaskMixin",
     "NBTTagLongArrayAccessor",
+    "NbtArrayBoundsMixin",
     "TaskPasteSchematicPerChunkCommandMixin",
     "TaskPasteSchematicPerChunkBaseAccessor",
     "WorldAccessor",

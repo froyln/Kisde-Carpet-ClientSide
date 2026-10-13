@@ -114,7 +114,7 @@ public abstract class SchematicSavePacketHandlerMixin {
         if (!blocks.hasKey("BlockStatePalette", 9) || !blocks.hasKey("BlockStates", 12)) throw new IllegalArgumentException("missing block data");
         NBTTagList palette = blocks.getTagList("BlockStatePalette", 10);
         if (palette.tagCount() == 0 || palette.tagCount() > volume) throw new IllegalArgumentException("invalid palette size");
-        for (int i = 0; i < palette.tagCount(); i++) validateState(palette.getCompoundTagAt(i));
+        for (int i = 0; i < palette.tagCount(); i++) dev.bulletcarpet.SharedSchematicValidation.validateState(palette.getCompoundTagAt(i));
         int bits = Math.max(2, 32 - Integer.numberOfLeadingZeros(palette.tagCount() - 1));
         long bitCount = Math.multiplyExact(volume, bits);
         long[] words = ((NBTTagLongArrayAccessor) blocks.getTag("BlockStates")).bulletcarpet$getData();
@@ -137,26 +137,6 @@ public abstract class SchematicSavePacketHandlerMixin {
             if (x < 0 || y < 0 || z < 0 || x >= sizeX || y >= sizeY || z >= sizeZ) throw new IllegalArgumentException("block entity outside region");
             long key = ((long) y * sizeZ + z) * sizeX + x;
             if (!positions.add(key)) throw new IllegalArgumentException("duplicate block entity position");
-        }
-    }
-
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private static void validateState(NBTTagCompound tag) {
-        if (!tag.hasKey("Name", 8)) throw new IllegalArgumentException("palette state has no name");
-        ResourceLocation name = new ResourceLocation(tag.getString("Name"));
-        Block block = Block.REGISTRY.getObject(name);
-        if (block == null) throw new IllegalArgumentException("unknown block " + name);
-        IBlockState state = block.getDefaultState();
-        if (tag.hasKey("Properties", 10)) {
-            NBTTagCompound properties = tag.getCompoundTag("Properties");
-            for (String key : properties.getKeySet()) {
-                if (!properties.hasKey(key, 8)) throw new IllegalArgumentException("invalid block property");
-                IProperty property = block.getBlockState().getProperty(key);
-                if (property == null) throw new IllegalArgumentException("unknown block property " + key);
-                com.google.common.base.Optional value = property.parseValue(properties.getString(key));
-                if (!value.isPresent()) throw new IllegalArgumentException("invalid block property value");
-                state = state.withProperty(property, (Comparable) value.get());
-            }
         }
     }
 
