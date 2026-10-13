@@ -24,8 +24,10 @@ An offline build requires the legacy Gradle/ForgeGradle dependencies to be cache
 
 When connected to a Kisde-Carpet server with `schematicShare` enabled, open
 Litematica's main menu and choose **Shared schematics** to browse, load, upload,
-update or remove server shares. All players can upload; authors and operators
-can manage their shares. Loading a shared placement adds a local schematic
+update, rename or remove server shares. All players can upload; authors and operators
+can manage their shares. Each shared row has Load, Update, Rename and Remove
+controls; placement rows also provide a Share button. Scroll with the mouse
+wheel or drag the scrollbar to browse larger libraries. Loading a shared placement adds a local schematic
 overlay and does not place blocks. See the server's [shared schematics guide](https://github.com/froyln/Kisde-Carpet/blob/staging/docs/usage/shared-schematics.rst).
 
 Litematica Auto/server save captures server blocks and block entities, including inventories and sign text. Entities and scheduled ticks are not captured. Paste detects the server automatically and follows Litematica's command rate, layers, transforms and replacement settings. Use replacement `all` to restore NBT in existing blocks. Capture and paste require OP permission and creative mode. The server rules `schematicSave` and `schematicPaste` control container contents only: when off, blocks and other block-entity metadata remain available. The save screen disables **Save inventories** while `schematicSave` is off. With inventory paste off, new containers are empty and existing same-block container contents are preserved.

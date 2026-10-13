@@ -21,6 +21,7 @@
     "CarpetLiteLoaderPayloadFanoutMixin",
     "ServerInventoryPayloadMixin",
     "GuiIngameScoreboardMixin",
-    "SharedSchematicsMenuMixin"
+    "SharedSchematicsMenuMixin",
+    "SharedPlacementEntryMixin"
   ]
 }

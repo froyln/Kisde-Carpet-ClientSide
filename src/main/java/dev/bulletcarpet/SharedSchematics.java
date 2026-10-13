@@ -31,7 +31,13 @@ public final class SharedSchematics {
     private Download download;
     private String requestedDownload;
     public boolean enabled;
-    public int page, pageSize = 8, total;
+    public int page, pageSize = 8, total, offset;
+    public String search = "";
+    private int listRequest;
+    private final List<NBTTagCompound> catalog = new ArrayList<>(), incomingCatalog = new ArrayList<>();
+    private boolean listing;
+    private int incomingTotal;
+    private long listActivity;
     public String status = "Waiting for server sharing settings";
     private long activity;
     private int dimension;
@@ -41,6 +47,7 @@ public final class SharedSchematics {
         if (mc.player == null) return;
         if (dimension != mc.player.dimension) { removeLoaded(); dimension = mc.player.dimension; queuedLoads.clear(); cancel(); }
         try {
+            if (listing && System.currentTimeMillis() - listActivity > 10000) { listing = false; status = "Catalog refresh timed out; use Refresh to retry"; }
             if ((upload != null || download != null || requestedDownload != null) && System.currentTimeMillis() - activity > 45000) throw new IOException("Schematic transfer timed out");
             if (upload != null && upload.ready && !upload.sent && System.currentTimeMillis() - upload.lastSent >= 20) {
                 if (upload.offset < upload.bytes.length) {
@@ -61,14 +68,26 @@ public final class SharedSchematics {
             switch (data.getString("Action")) {
                 case "Status":
                     enabled = data.getBoolean("Enabled");
-                    if (!enabled) { cancelLocal(); removeLoaded(); known.clear(); pageEntries.clear(); total = 0; status = "Sharing is disabled. Ask an operator to enable schematicShare."; }
+                    if (!enabled) { cancelLocal(); removeLoaded(); known.clear(); pageEntries.clear(); catalog.clear(); incomingCatalog.clear(); listing = false; total = 0; status = "Sharing is disabled. Ask an operator to enable schematicShare."; }
                     else { status = "Sharing enabled"; refresh(); }
                     break;
                 case "List":
-                    pageEntries.clear(); page = data.getInteger("Page"); total = data.getInteger("Total");
-                    NBTTagList entries = data.getTagList("Entries", 10); if (entries.tagCount() > 12) throw new IOException("Shared list too large");
-                    for (int i = 0; i < entries.tagCount(); i++) { NBTTagCompound entry = entries.getCompoundTagAt(i); validateEntry(entry); pageEntries.add(entry); known.put(entry.getString("Id"), entry); }
-                    if (!busy()) status = total + " shared schematic" + (total == 1 ? "" : "s");
+                    if (!listing || data.hasKey("Request", 3) && data.getInteger("Request") != listRequest) break;
+                    int listedPage = data.getInteger("Page"), listedTotal = data.getInteger("Total");
+                    int listedOffset = data.hasKey("Offset", 3) ? data.getInteger("Offset") : listedPage * 12;
+                    NBTTagList entries = data.getTagList("Entries", 10);
+                    if (listedPage < 0 || listedTotal < 0 || listedTotal > 256 || listedOffset != incomingCatalog.size() || entries.tagCount() > Math.min(12, listedTotal - listedOffset) || (listedOffset != 0 && listedTotal != incomingTotal)) throw new IOException("Shared catalog changed; use Refresh to retry");
+                    incomingTotal = listedTotal; listActivity = System.currentTimeMillis();
+                    for (int i = 0; i < entries.tagCount(); i++) { NBTTagCompound entry = entries.getCompoundTagAt(i); validateEntry(entry); incomingCatalog.add(entry); }
+                    if (incomingCatalog.size() < incomingTotal) {
+                        if (entries.tagCount() != 12) throw new IOException("Incomplete shared catalog page");
+                        requestCatalogPage();
+                    } else {
+                        listing = false; catalog.clear(); catalog.addAll(incomingCatalog); incomingCatalog.clear();
+                        for (NBTTagCompound entry : catalog) known.put(entry.getString("Id"), entry);
+                        showWindow();
+                        if (!busy()) status = "";
+                    }
                     break;
                 case "Ready": if (upload != null && upload.token.equals(data.getString("Transfer"))) { if (data.getInteger("Offset") != upload.offset) throw new IOException("Incorrect upload acknowledgement"); upload.ready = true; status = "Uploading " + upload.offset * 100L / upload.bytes.length + "%"; } break;
                 case "Uploaded": if (upload != null && upload.token.equals(data.getString("Transfer"))) { upload = null; status = "Shared with the server"; refresh(); } break;
@@ -91,11 +110,27 @@ public final class SharedSchematics {
     }
     public boolean busy() { return upload != null || download != null || requestedDownload != null; }
     public NBTTagCompound entry(String id) { return known.get(id); }
-    public void refresh() { if (enabled) { NBTTagCompound data = message("List"); data.setInteger("Page", page); data.setInteger("PageSize", pageSize); send(data); } }
+    public void refresh() {
+        if (!enabled) return;
+        incomingCatalog.clear(); listing = true; listActivity = System.currentTimeMillis(); requestCatalogPage();
+    }
+    private void requestCatalogPage() {
+        NBTTagCompound data = message("List"); data.setInteger("Page", incomingCatalog.size() / 12);
+        data.setInteger("Request", ++listRequest); data.setInteger("PageSize", 12); send(data);
+    }
+    public void showWindow() {
+        String query = search.toLowerCase(java.util.Locale.ROOT);
+        List<NBTTagCompound> matches = new ArrayList<>();
+        for (NBTTagCompound entry : catalog) if (entry.getString("Name").toLowerCase(java.util.Locale.ROOT).contains(query) || entry.getString("Author").toLowerCase(java.util.Locale.ROOT).contains(query)) matches.add(entry);
+        total = matches.size(); offset = Math.max(0, Math.min(Math.max(0, total - pageSize), offset)); page = offset / pageSize;
+        pageEntries.clear(); pageEntries.addAll(matches.subList(offset, Math.min(total, offset + pageSize)));
+    }
     public void share(String updating) {
+        share(updating, DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement());
+    }
+    public void share(String updating, SchematicPlacement placement) {
         try {
             if (!enabled || busy()) throw new IOException("Sharing is unavailable or a transfer is active");
-            SchematicPlacement placement = DataManager.getSchematicPlacementManager().getSelectedSchematicPlacement();
             if (placement == null) throw new IOException("Select a Litematica placement to share first");
             ISchematic schematic = placement.getSchematic();
             NBTTagCompound data = (NBTTagCompound) schematic.getClass().getMethod("toTag").invoke(schematic);
@@ -117,6 +152,15 @@ public final class SharedSchematics {
     public void delete(String id) {
         NBTTagCompound entry = known.get(id); if (entry == null || !entry.getBoolean("CanManage") || busy()) return;
         NBTTagCompound request = message("Delete"); request.setString("Id", id); request.setLong("Revision", entry.getLong("Revision")); send(request);
+    }
+    public boolean rename(String id, long revision, String name) {
+        NBTTagCompound entry = known.get(id);
+        if (!enabled || busy() || entry == null || !entry.getBoolean("CanManage")) return false;
+        if (name.isEmpty() || name.length() > 96 || name.chars().anyMatch(c -> Character.isISOControl(c) || c == 167)) {
+            status = "Use 1–96 characters without control or formatting codes"; return false;
+        }
+        NBTTagCompound request = message("Rename"); request.setString("Id", id); request.setLong("Revision", revision); request.setString("Name", name); send(request);
+        return true;
     }
     private void queueLoad(String id) { if (!queuedLoads.contains(id) && queuedLoads.size() < 32) queuedLoads.add(id); }
     public void load(String id) {
@@ -192,9 +236,9 @@ public final class SharedSchematics {
         }
         loaded.clear(); queuedLoads.clear();
     }
-    private void reset(NetHandlerPlayClient next) { cancelLocal(); removeLoaded(); known.clear(); pageEntries.clear(); enabled = false; page = total = 0; connection = next; dimension = Minecraft.getMinecraft().player == null ? 0 : Minecraft.getMinecraft().player.dimension; status = "Waiting for server sharing settings"; }
+    private void reset(NetHandlerPlayClient next) { cancelLocal(); removeLoaded(); known.clear(); pageEntries.clear(); catalog.clear(); incomingCatalog.clear(); listing = false; enabled = false; search = ""; page = total = offset = listRequest = 0; connection = next; dimension = Minecraft.getMinecraft().player == null ? 0 : Minecraft.getMinecraft().player.dimension; status = "Waiting for server sharing settings"; }
     private void failure(String text) {
-        cancel(); status = text == null ? "Schematic sharing failed" : text.substring(0, Math.min(text.length(), 256));
+        listing = false; incomingCatalog.clear(); cancel(); status = text == null ? "Schematic sharing failed" : text.substring(0, Math.min(text.length(), 256));
         if (Minecraft.getMinecraft().player != null) Minecraft.getMinecraft().player.sendMessage(new TextComponentString("[Kisde-Carpet] " + status));
     }
     private static NBTTagCompound message(String action) { NBTTagCompound data = new NBTTagCompound(); data.setString("Action", action); return data; }
