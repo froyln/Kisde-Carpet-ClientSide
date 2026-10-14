@@ -17,7 +17,9 @@ public abstract class ServerInventoryPayloadMixin {
     @Inject(method = "handleCustomPayload", at = @At("HEAD"))
     private void bulletcarpet$receiveServerInventory(SPacketCustomPayload packet, CallbackInfo ci) {
         if (!Minecraft.getMinecraft().isCallingFromMinecraftThread()) return;
-        if (SharedSchematics.CHANNEL.equals(packet.getChannelName())) {
+        if (dev.bulletcarpet.AnvilSync.CHANNEL.equals(packet.getChannelName())) {
+            dev.bulletcarpet.AnvilSync.receive(packet.getBufferData());
+        } else if (SharedSchematics.CHANNEL.equals(packet.getChannelName())) {
             SharedSchematics.INSTANCE.receive(packet.getBufferData());
         } else if (LiteModBulletCarpet.SCHEMATIC_RULES.equals(packet.getChannelName())) {
             LiteModBulletCarpet.onSchematicRules(packet.getBufferData());

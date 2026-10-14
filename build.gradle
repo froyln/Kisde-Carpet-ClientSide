@@ -83,3 +83,9 @@ task sharedSchematicValidationCheck(type: JavaExec) {
     workingDir = file("$buildDir/checks/shared-schematic")
     doFirst { workingDir.mkdirs() }
 }
+
+task anvilCheck(type: JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'dev.bulletcarpet.AnvilSyncCheck'
+}

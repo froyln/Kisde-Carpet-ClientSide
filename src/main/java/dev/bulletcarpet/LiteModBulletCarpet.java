@@ -82,7 +82,7 @@ public class LiteModBulletCarpet implements LiteMod, GameLoopListener, PluginCha
 
     @Override
     public List<String> getChannels() {
-        return Arrays.asList("bc:paste_ack", "pca:update_be", "bc:inv_ack", SCHEMATIC_RULES, SharedSchematics.CHANNEL);
+        return Arrays.asList("bc:paste_ack", "pca:update_be", "bc:inv_ack", SCHEMATIC_RULES, AnvilSync.CHANNEL, SharedSchematics.CHANNEL);
     }
 
     @Override

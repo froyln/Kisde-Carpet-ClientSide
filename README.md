@@ -38,6 +38,8 @@ The rename retains existing packet channels and internal compatibility identifie
 
 The companion keeps the **Total** entry above player rows in `/sb` statistics sidebars, including tied scores and temporary updates, and displays its name in bold. Stored names and score values are preserved; this display fix requires the companion on each viewing client.
 
+The companion displays full anvil costs and honors `disableAnvilXpLimit`. Costs above 32767 levels require this updated companion; the server rejects those operations safely for older clients and still charges the full XP cost.
+
 ## Documentation
 
 See the server's [integration guide](https://github.com/froyln/Kisde-Carpet/blob/staging/docs/usage/server-integrations.rst) for permissions, limits, no-update behavior and supported data. This companion is a separate client project; never install it on the server.

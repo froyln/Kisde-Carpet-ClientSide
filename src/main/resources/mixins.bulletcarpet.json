@@ -22,6 +22,8 @@
     "ServerInventoryPayloadMixin",
     "GuiIngameScoreboardMixin",
     "SharedSchematicsMenuMixin",
-    "SharedPlacementEntryMixin"
+    "SharedPlacementEntryMixin",
+    "ContainerRepairMixin",
+    "GuiRepairMixin"
   ]
 }
