@@ -89,3 +89,9 @@ task anvilCheck(type: JavaExec) {
     classpath = sourceSets.test.runtimeClasspath
     main = 'dev.bulletcarpet.AnvilSyncCheck'
 }
+
+task inventoryPreviewCheck(type: JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    main = 'dev.bulletcarpet.InventoryCameraCheck'
+}
